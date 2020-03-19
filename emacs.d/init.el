@@ -46,6 +46,15 @@
 (setq display-time-format "%Y-%m-%d %H:%M:%S")
 (display-time-mode)
 
+; print current opened file
+(defun print_file_name()
+  "Print current file buffer name."
+  (interactive)
+  (message "File: %s" buffer-file-name)
+  )
+
+(global-set-key (kbd "C-c f") 'print_file_name)
+
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.org/packages/") t)
