@@ -221,7 +221,15 @@ Non-interactive arguments are BEGIN END Regexp."
   (if dir
       (progn
         (message "Use astyle(k&r) to format code under %S ..." dir)
-        (call-process-shell-command (format "astyle --style=kr -n -R \"%s/*.c\" \"%s/*.cpp\" \"%s/*.h\""  dir, dir, dir)
+        (if (string-prefix-p "~/" dir)
+            (progn
+              (setq dir (concat (getenv "HOME") "/" (substring dir 2)))
+              )
+          )
+        (if (string-suffix-p "/" dir)
+            (setq dir (substring dir 0 -1))
+            )
+        (call-process-shell-command (format "astyle --style=kr -n -R \"%s/*.c\" \"%s/*.cpp\" \"%s/*.h\""  dir dir dir)
                                     nil "astyle-output" t)
         ))
   (revert-buffer t t)
