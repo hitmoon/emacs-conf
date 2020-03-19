@@ -416,46 +416,73 @@ Non-interactive arguments are BEGIN END Regexp."
 (defun set-region (cmd)
   "Select a region by line number like ed and execute CMD."
   (interactive "sInput: ")
-  (let* ((addr (split-string (substring cmd 0 (string-match "[ ]" cmd)) ","))
-	 (act (substring cmd (string-match "s" cmd)))
-	 (beg (nth 0 addr))
-	 (end (nth 1 addr)))
+  (let* ((act (substring cmd (string-match "s" cmd)))
+         (addr "")
+	 (beg ".")
+	 (end "."))
+    ;; has address
+    (if (not (string-prefix-p act cmd))
+        (progn
+          (setq addr (substring cmd 0 (string-match "s" cmd)))
+          (if (not (string-match "^[ \t]+$" addr))
+              (progn
+                (setq addr (split-string addr ","))
+                (setq beg (nth 0 addr))
+                (setq end (nth 1 addr))
+                (message "addr = %s, beg = %s, end = %s" addr beg end)
+                ))))
+    ;; strip spaces
+    (setq beg (string-trim beg))
+    (setq end (string-trim end))
+
     (if (not (and (string-match-p "[0-9]+\\|[.]" beg)
-		  (string-match-p "[0-9]+\\|[$]" end)))
+		  (string-match-p "[0-9]+\\|[.$]" end)))
 	(message "Invalid prefix address!")
       (progn
 	(if (not (string-equal beg "."))
 	    (forward-line (string-to-number beg))
 	  )
 	(setq beg (point))
+
 	; dtermine the end
 	(if (string-equal end "$")
 	    (setq end (point-max))
-	  (progn
-	    (forward-line (string-to-number end))
+          (progn
+	    (if (not (string-equal end "."))
+	        (forward-line (string-to-number end))
+              )
 	    (end-of-line)
-	    (setq end (point))
-	    ))
-	(list beg end act)
-      ))))
+	    (setq end (point))))
+	 (list beg end act)
+         ))))
 
+(defun replace-region (src target start end)
+  "Relace text SRC with TARGET in specified region START to END."
+  (goto-char start)
+  (let ((count 0))
+    (while (re-search-forward src end t)
+      (replace-match target t t nil)
+      (setq count (+ count 1))
+      )
+    (message "(vim like): Replace %d ocurrences" count)
+    ))
 
-(defun replace-region ()
- "Replace a region like vim."
- (interactive)
-    (let* ((cmd-list (call-interactively 'set-region))
-	   (beg (nth 0 cmd-list))
-	   (end (nth 1 cmd-list))
-	   (act (nth 2 cmd-list)))
-      ;(message "cmd=%s" cmd-list)
-      (if (not (string-match-p "^s[,@/].+[,@/].*[,@/]" act))
-	  (message "Operation not supported!")
- 	; start parse the atc
-	(let ((src (nth 1 (split-string act (substring act 1 2))))
-	      (target (nth 2 (split-string act (substring act 1 2)))))
-	  (goto-char beg)
-	  (replace-regexp src target nil beg end)
-	   ))))
+(defun vim-replace-region ()
+  "Replace a region like vim."
+  (interactive)
+  (let* ((cmd-list (call-interactively 'set-region))
+	 (beg (nth 0 cmd-list))
+	 (end (nth 1 cmd-list))
+	 (act (nth 2 cmd-list)))
+    (message "cmd=%s" cmd-list)
+    (if (not (string-match-p "^s[,@/].+[,@/].*[,@/]" act))
+        (message "Replace operation not supported! Are you vimer?")
+                                        ; start parse the atc
+      (let* ((sep (substring act 1 2))
+             (src (nth 1 (split-string act sep)))
+	     (target (nth 2 (split-string act sep))))
+        (replace-region src target beg end)
+        ))))
 
 (defun insert-changelog ()
   "Insert change log to rpm spec file."
@@ -463,8 +490,7 @@ Non-interactive arguments are BEGIN END Regexp."
   (progn
     (forward-line)
     (insert (concat "* " (format-time-string "%a %b %d %Y") " xiaoqiang.zhao <zxq_yx_007@163.com> - ")
-    )
-    ))
+    )))
 
 (defun insert-CR ()
   "Insert copy right information at begining of c/c++ file."
@@ -521,7 +547,7 @@ Non-interactive arguments are BEGIN END Regexp."
 (global-set-key (kbd "C-c c p") 'copy-paragraph)
 (global-set-key (kbd "C-c k l") 'kill-whole-line)
 (global-set-key (kbd "C-c k p") 'kill-paragraph)
-(global-set-key (kbd "C-c c v") 'replace-region)
+(global-set-key (kbd "C-c c v") 'vim-replace-region)
 (global-set-key (kbd "C-c c u") 'uncomment-region)
 (global-set-key (kbd "C-c c r") 'comment-region)
 (global-set-key (kbd "C-c c n") 'only-new-lines)
