@@ -211,7 +211,7 @@ Non-interactive arguments are BEGIN END Regexp."
   "Use astyle command tools to format c/c++ code."
   (interactive)
   (message "Use astyle(k&r) to format code ...")
-  (call-process-shell-command "astyle" nil "astyle" t "--style=kr" "-n" buffer-file-name)
+  (call-process-shell-command (format "astyle --style=kr -n %s" buffer-file-name) nil "astyle-output" t)
   (revert-buffer t t)
   )
 
@@ -221,11 +221,8 @@ Non-interactive arguments are BEGIN END Regexp."
   (if dir
       (progn
         (message "Use astyle(k&r) to format code under %S ..." dir)
-        (call-process-shell-command "astyle" nil "astyle" t
-                                    "--style=kr" "-n" "-R"
-                                    (format "'%s/*.c'" dir)
-                                    (format "'%s/*.cpp'" dir)
-                                    (format "'%s/*.h'" dir))
+        (call-process-shell-command (format "astyle --style=kr -n -R \"%s/*.c\" \"%s/*.cpp\" \"%s/*.h\""  dir, dir, dir)
+                                    nil "astyle-output" t)
         ))
   (revert-buffer t t)
   )
