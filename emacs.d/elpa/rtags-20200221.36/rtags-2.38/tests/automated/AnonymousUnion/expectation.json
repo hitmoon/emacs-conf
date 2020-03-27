@@ -1,0 +1,12 @@
+[
+  {
+    "name": "follow_location",
+    "rc-command": [
+      "--follow-location",
+      "{0}/main.cpp:9:7:"
+    ],
+    "expectation": [
+      "main.cpp:5:17:\t            int a;"
+    ]
+  }
+]

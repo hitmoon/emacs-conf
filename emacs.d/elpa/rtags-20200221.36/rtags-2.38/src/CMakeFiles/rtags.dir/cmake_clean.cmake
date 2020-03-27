@@ -1,0 +1,43 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/rtags.dir/ClangIndexer.cpp.o"
+  "CMakeFiles/rtags.dir/ClangThread.cpp.o"
+  "CMakeFiles/rtags.dir/ClassHierarchyJob.cpp.o"
+  "CMakeFiles/rtags.dir/CompilerManager.cpp.o"
+  "CMakeFiles/rtags.dir/CompletionThread.cpp.o"
+  "CMakeFiles/rtags.dir/DependenciesJob.cpp.o"
+  "CMakeFiles/rtags.dir/FileManager.cpp.o"
+  "CMakeFiles/rtags.dir/FindFileJob.cpp.o"
+  "CMakeFiles/rtags.dir/FindSymbolsJob.cpp.o"
+  "CMakeFiles/rtags.dir/FollowLocationJob.cpp.o"
+  "CMakeFiles/rtags.dir/IncludeFileJob.cpp.o"
+  "CMakeFiles/rtags.dir/IncludePathJob.cpp.o"
+  "CMakeFiles/rtags.dir/IndexMessage.cpp.o"
+  "CMakeFiles/rtags.dir/IndexParseData.cpp.o"
+  "CMakeFiles/rtags.dir/IndexerJob.cpp.o"
+  "CMakeFiles/rtags.dir/JobScheduler.cpp.o"
+  "CMakeFiles/rtags.dir/ListSymbolsJob.cpp.o"
+  "CMakeFiles/rtags.dir/Location.cpp.o"
+  "CMakeFiles/rtags.dir/Preprocessor.cpp.o"
+  "CMakeFiles/rtags.dir/Project.cpp.o"
+  "CMakeFiles/rtags.dir/QueryJob.cpp.o"
+  "CMakeFiles/rtags.dir/QueryMessage.cpp.o"
+  "CMakeFiles/rtags.dir/RClient.cpp.o"
+  "CMakeFiles/rtags.dir/RTags.cpp.o"
+  "CMakeFiles/rtags.dir/ReferencesJob.cpp.o"
+  "CMakeFiles/rtags.dir/Sandbox.cpp.o"
+  "CMakeFiles/rtags.dir/ScanThread.cpp.o"
+  "CMakeFiles/rtags.dir/Server.cpp.o"
+  "CMakeFiles/rtags.dir/Source.cpp.o"
+  "CMakeFiles/rtags.dir/StatusJob.cpp.o"
+  "CMakeFiles/rtags.dir/Symbol.cpp.o"
+  "CMakeFiles/rtags.dir/SymbolInfoJob.cpp.o"
+  "CMakeFiles/rtags.dir/Token.cpp.o"
+  "CMakeFiles/rtags.dir/TokensJob.cpp.o"
+  "librtags.a"
+  "librtags.pdb"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/rtags.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

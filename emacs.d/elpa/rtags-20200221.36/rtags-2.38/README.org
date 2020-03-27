@@ -1,0 +1,85 @@
+#+OPTIONS: ^:nil
+
+#+html: <div align="center"><a href="https://travis-ci.org/Andersbakken/rtags"><img alt="MELPA" src="https://travis-ci.org/Andersbakken/rtags.svg?branch=master"/></a> <a href="https://www.gnu.org/licenses/gpl-3.0.txt"><img alt="MELPA" src="https://img.shields.io/badge/license-GPL%203-brightgreen.svg"/></a></div>
+#+html: <div align="center"><table align="center" style="width:100%"><tr><th>rtags</th></tr><tr><td align="center"><a href="https://melpa.org/#/rtags"><img alt="MELPA" src="https://melpa.org/packages/rtags-badge.svg"/></a></td></tr></table></div>
+#+html: <table align="center" style="width:100%"><tr><th>rtags-xref</th><th>ac-rtags</th><th>company-rtags</th><th>flycheck-rtags</th><th>helm-rtags</th><th>ivy-rtags</th></tr><tr><td align="center"><a href="https://melpa.org/#/rtags-xref"><img alt="MELPA" src="https://melpa.org/packages/rtags-xref-badge.svg"/></a></td><td align="center"><a href="https://melpa.org/#/ac-rtags"><img alt="MELPA" src="https://melpa.org/packages/ac-rtags-badge.svg"/></a></td><td align="center"><a href="https://melpa.org/#/company-rtags"><img alt="MELPA" src="https://melpa.org/packages/company-rtags-badge.svg"/></a></td><td align="center"><a href="https://melpa.org/#/flycheck-rtags"><img alt="MELPA" src="https://melpa.org/packages/flycheck-rtags-badge.svg"/></a></td><td align="center"><a href="https://melpa.org/#/helm-rtags"><img alt="MELPA" src="https://melpa.org/packages/helm-rtags-badge.svg"/></a></td><td align="center"><a href="https://melpa.org/#/ivy-rtags"><img alt="MELPA" src="https://melpa.org/packages/ivy-rtags-badge.svg"/></a></td></tr></table>
+
+* Introduction
+RTags is a client/server application that indexes C/C++ code and keeps a
+persistent file-based database of references, declarations, definitions,
+symbolnames etc. There's also limited support for ObjC/ObjC++. It allows you
+to find symbols by name (including nested class and namespace scope). Most
+importantly we give you proper follow-symbol and find-references support. We
+also have neat little things like rename-symbol, integration with clang's
+"fixits" (https://clang.llvm.org/diagnostics.html). We also integrate with
+flymake using clang's vastly superior errors and warnings. Since RTags
+constantly will reindex "dirty" files you get live updates of compiler errors
+and warnings. Since we already know how to compile your sources we have a way
+to quickly bring up the preprocessed output of the current source file in a
+buffer.
+
+While existing taggers like gnu global, cscope, etags, ctags etc do a decent
+job for C they often fall a little bit short for C++. With its incredible
+lexical complexity, parsing C++ is an incredibly hard task and we make no
+bones about the fact that the only reason we are able to improve on the
+current tools is because of clang (https://clang.llvm.org/). RTags is named
+RTags in recognition of Roberto Raggi on whose C++ parser we intended to base
+this project but he assured us clang was the way to go. The name stuck
+though.
+
+Tarball releases are available here:
+https://github.com/Andersbakken/rtags/releases/
+
+* TLDR Quickstart
+Build RTags
+
+#+BEGIN_SRC sh
+git clone --recursive https://github.com/Andersbakken/rtags.git
+cd rtags
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 .
+make
+#+END_SRC
+
+Start the RTags daemon (=rdm=)
+
+#+BEGIN_SRC sh
+./bin/rdm &
+#+END_SRC
+
+Index the RTags project, and wait until =rdm= is silent
+
+#+BEGIN_SRC sh
+./bin/rc -J .
+#+END_SRC
+
+Open source file in =emacs=
+
+#+BEGIN_SRC sh
+emacs +74:34 src/rdm.cpp
+#+END_SRC
+
+Load =rtags.el=
+
+#+BEGIN_EXAMPLE
+M-: (load-file "rtags.el") RET
+#+END_EXAMPLE
+
+Ensure =rc= can be found
+
+#+BEGIN_EXAMPLE
+M-x set-variable RET rtags-path RET "../bin" RET
+#+END_EXAMPLE
+
+Call =rtags-find-symbol-at-point=
+
+#+BEGIN_EXAMPLE
+M-x rtags-find-symbol-at-point RET
+#+END_EXAMPLE
+
+Your location is now on the definition of =Server::instance()=
+
+* Documentation
+The documentation can be found in the [[https://github.com/Andersbakken/rtags/wiki][Wiki]].
+* Disclaimer
+RTags is still under development and is not the most stable piece of software
+you'll ever find. We're constantly working to improve on it.
