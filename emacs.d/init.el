@@ -79,42 +79,50 @@
 
 (global-auto-revert-mode 1)
 
-(setenv "LD_LIBRARY_PATH" (concat "/Library/Developer/CommandLineTools/usr/lib" (getenv "LD_LIBRARY_PATH")))
+;; on Mac
+;(setenv "LD_LIBRARY_PATH" (concat "/Library/Developer/CommandLineTools/usr/lib" (getenv "LD_LIBRARY_PATH")))
 
-; flycheck
-(add-hook 'after-init-hook #'global-flycheck-mode)
+;; flycheck
+(require 'flycheck)
+(global-flycheck-mode)
 
-(require 'irony)
-(add-hook 'c++-mode-hook 'irony-mode)
-(add-hook 'c-mode-hook 'irony-mode)
+;; projectile
+(require 'projectile)
+(projectile-mode)
 
+;; company
 (require 'company)
 (add-hook 'after-init-hook 'global-company-mode)
 (setq company-idle-delay .3)
 (setq company-minimum-prefix-length 2)
 
-(require 'company-irony)
-(eval-after-load 'company
-		 '(add-to-list
-		   'company-backends
-		   '(company-irony company-irony-c-headers))
-		 )
-
-;; replace the `completion-at-point' and `complete-symbol' binding in
-;; irony-mode's buffers by irony-mode's function
-(defun my-irony-mode-hook ()
-  "Irony mode hook."
-  (define-key irony-mode-map [remap completion-at-point]
-    'irony-completion-at-point-async)
-  (define-key irony-mode-map [remap complete-symbol]
-    'irony-completion-at-point-async))
-(add-hook 'irony-mode-hook 'my-irony-mode-hook)
+;; irony
+(require 'irony)
+;; If irony server was never installed, install it.
+(unless (irony--find-server-executable) (call-interactively #'irony-install-server))
+(add-hook 'c++-mode-hook 'irony-mode)
+(add-hook 'c-mode-hook 'irony-mode)
+;; Use compilation database first, clang_complete as fallback.
+(setq-default irony-cdb-compilation-databases '(irony-cdb-libclang
+                                                irony-cdb-clang-complete))
 (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+
+;; use irony with company to get code completion.
+(require 'company-irony)
+(eval-after-load 'company '(add-to-list 'company-backends 'company-irony))
+
+;; use irony with flycheck to get real-time syntax checking.
+(require 'flycheck-irony)
+(eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
+
+;; Eldoc shows argument list of the function you are currently writing in the echo area.
+(require 'irony-eldoc)
+(add-hook 'irony-mode-hook #'irony-eldoc)
+
 
 ;; (window-numbering-mode)
 ;; (require 'smex)
 ;; (smex-initialize)
-
 
 (setq ecb-tip-of-the-day nil)
 (setq stack-trace-on-error t)
@@ -126,7 +134,6 @@
 
 ;; active yasnippet
 (require 'yasnippet)
-;(yas/initialize)
 (yas-global-mode 1)
 
 (setq-default mode-line-format
@@ -584,7 +591,7 @@ Non-interactive arguments are BEGIN END Regexp."
  '(ecb-show-sources-in-directories-buffer (quote ("left7" "left13" "left14" "left15")))
  '(package-selected-packages
    (quote
-    (flycheck rust-mode ggtags yasnippet srefactor imenu-list imenu+ gtags flymake-shell flymake-python-pyflakes flymake-cppcheck flymake ecb company-irony-c-headers company-irony color-theme))))
+    (projectile flycheck rust-mode ggtags yasnippet srefactor imenu-list imenu+ gtags flymake-shell flymake-python-pyflakes flymake-cppcheck flymake ecb company-irony-c-headers company-irony color-theme))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -592,7 +599,6 @@ Non-interactive arguments are BEGIN END Regexp."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
 (provide 'init.el)
 
 ;;; init.el ends here
