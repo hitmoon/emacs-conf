@@ -53,7 +53,7 @@
   (message "File: %s" buffer-file-name)
   )
 
-(global-set-key (kbd "C-c f") 'print_file_name)
+(global-set-key (kbd "C-c n") 'print_file_name)
 
 (require 'package)
 (add-to-list 'package-archives
@@ -84,74 +84,93 @@
 
 ;; flycheck
 (require 'flycheck)
-(global-flycheck-mode)
+;;(global-flycheck-mode)
 
 ;; projectile
 (require 'projectile)
 (projectile-mode)
+(global-set-key (kbd "C-c f o") 'projectile-find-other-file)
 
 ;; company
 (require 'company)
 (add-hook 'after-init-hook 'global-company-mode)
-(setq company-idle-delay .3)
+(setq company-idle-delay .2)
 (setq company-minimum-prefix-length 2)
 
-;; irony
-(require 'irony)
-;; If irony server was never installed, install it.
-(unless (irony--find-server-executable) (call-interactively #'irony-install-server))
-(add-hook 'c++-mode-hook 'irony-mode)
-(add-hook 'c-mode-hook 'irony-mode)
-;; Use compilation database first, clang_complete as fallback.
-(setq-default irony-cdb-compilation-databases '(irony-cdb-libclang
-                                                irony-cdb-clang-complete))
-(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+;; setup irony
+(defun setup_irony()
+  "Set up irony."
+  (progn
+    (message "Seting up irony...")
+    ;; irony
+    (require 'irony)
+    ;; If irony server was never installed, install it.
+    (unless (irony--find-server-executable) (call-interactively #'irony-install-server))
+    (add-hook 'c++-mode-hook 'irony-mode)
+    (add-hook 'c-mode-hook 'irony-mode)
+    ;; Use compilation database first, clang_complete as fallback.
+    (setq-default irony-cdb-compilation-databases '(irony-cdb-libclang
+						    irony-cdb-clang-complete))
+    (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
 
-;; use irony with company to get code completion.
-(require 'company-irony)
-(eval-after-load 'company '(add-to-list 'company-backends 'company-irony))
+    ;; use irony with company to get code completion.
+    (require 'company-irony)
+    (eval-after-load 'company '(add-to-list 'company-backends 'company-irony))
 
-;; use irony with flycheck to get real-time syntax checking.
-(require 'flycheck-irony)
-(eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
+    ;; use irony with flycheck to get real-time syntax checking.
+    (require 'flycheck-irony)
+    (eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
 
-;; Eldoc shows argument list of the function you are currently writing in the echo area.
-(require 'irony-eldoc)
-(add-hook 'irony-mode-hook #'irony-eldoc)
+    ;; Eldoc shows argument list of the function you are currently writing in the echo area.
+    (require 'irony-eldoc)
+    (add-hook 'irony-mode-hook #'irony-eldoc)))
 
-;; RTags
-(require 'rtags)
-(unless (rtags-executable-find "rc") (error "Binary rc is not installed!"))
-(unless (rtags-executable-find "rdm") (error "Binary rdm is not installed!"))
 
-(define-key c-mode-base-map (kbd "M-.") 'rtags-find-symbol-at-point)
-(define-key c-mode-base-map (kbd "M-,") 'rtags-find-references-at-point)
-(define-key c-mode-base-map (kbd "M-?") 'rtags-display-summary)
-(rtags-enable-standard-keybindings)
-;; Shutdown rdm when leaving emacs.
-(add-hook 'kill-emacs-hook 'rtags-quit-rdm)
+;; setup Rtags
+(defun setup_rtags ()
+  "Set up rtags."
+  (progn
+    (message "Seting up Rtags ...")
+    ;; RTags
+    (require 'rtags)
+    (unless (rtags-executable-find "rc") (error "Binary rc is not installed!"))
+    (unless (rtags-executable-find "rdm") (error "Binary rdm is not installed!"))
 
-;; Use rtags for auto-completion.
-(require 'company-rtags)
-(setq rtags-autostart-diagnostics t)
-(rtags-diagnostics)
-(setq rtags-completions-enabled t)
-(push 'company-rtags company-backends)
+    (add-hook 'c-mode-hook 'rtags-start-process-unless-running)
+    (add-hook 'c++-mode-hook 'rtags-start-process-unless-running)
 
-;; Live code checking.
-(require 'flycheck-rtags)
+    (define-key c-mode-base-map (kbd "M-.") 'rtags-find-symbol-at-point)
+    (define-key c-mode-base-map (kbd "M-[") 'rtags-find-symbol)
+    (define-key c-mode-base-map (kbd "M-,") 'rtags-find-references-at-point)
+    (define-key c-mode-base-map (kbd "M-]") 'rtags-find-references)
+    (define-key c-mode-base-map (kbd "M-?") 'rtags-display-summary)
+    (rtags-enable-standard-keybindings)
+    ;; Shutdown rdm when leaving emacs.
+    (add-hook 'kill-emacs-hook 'rtags-quit-rdm)
 
-;; ensure that we use only rtags checking
-;; https://github.com/Andersbakken/rtags#optional-1
-(defun setup-flycheck-rtags ()
-  (flycheck-select-checker 'rtags)
-  (setq-local flycheck-highlighting-mode nil) ;; RTags creates more accurate overlays.
-  (setq-local flycheck-check-syntax-automatically nil)
-  (rtags-set-periodic-reparse-timeout 2.0)  ;; Run flycheck 2 seconds after being idle.
-  )
-(add-hook 'c-mode-hook #'setup-flycheck-rtags)
-(add-hook 'c++-mode-hook #'setup-flycheck-rtags)
+    ;; Use rtags for auto-completion.
+    (require 'company-rtags)
+    (setq rtags-autostart-diagnostics t)
+    (rtags-diagnostics)
+    (setq rtags-completions-enabled t)
+    (push 'company-rtags company-backends)
 
+    ;; Live code checking.
+    (require 'flycheck-rtags)
+
+    ;; ensure that we use only rtags checking
+    ;; https://github.com/Andersbakken/rtags#optional-1
+    (defun setup-flycheck-rtags ()
+      (flycheck-select-checker 'rtags)
+      (setq-local flycheck-highlighting-mode nil) ;; RTags creates more accurate overlays.
+      (setq-local flycheck-check-syntax-automatically nil)
+      (rtags-set-periodic-reparse-timeout 2.0)  ;; Run flycheck 2 seconds after being idle.
+      )
+    (add-hook 'c-mode-hook #'setup-flycheck-rtags)
+    (add-hook 'c++-mode-hook #'setup-flycheck-rtags)))
+
+;;(setup_irony)
+(setup_rtags)
 
 ;; (window-numbering-mode)
 ;; (require 'smex)
@@ -241,10 +260,10 @@ Non-interactive arguments are BEGIN END Regexp."
 (setq tab-stop-list (number-sequence 4 120 4))
 
 ;; ggtags
-(add-hook 'c-mode-common-hook
-          (lambda ()
-            (when (derived-mode-p 'c-mode 'c++-mode)
-              (ggtags-mode 1))))
+;; (add-hook 'c-mode-common-hook
+;;           (lambda ()
+;;             (when (derived-mode-p 'c-mode 'c++-mode)
+;;               (ggtags-mode 1))))
 
 ;; astyle
 (defun astyle-code()
