@@ -12,7 +12,7 @@
 (setq default-frame-alist '((top . 30) (left . 30)
  			    (width . 91) (height . 30)))
 
-(add-to-list 'default-frame-alist '(font . "DejaVu Sans Mono-13"))
+(add-to-list 'default-frame-alist '(font . "DejaVu Sans Mono-11"))
 
 ; shell mode hook
 (setq ansi-color-names-vector ; better contrast colors
@@ -97,11 +97,23 @@
 (setq company-idle-delay .2)
 (setq company-minimum-prefix-length 2)
 
+;; setup ggtags
+(defun setup_ggtags()
+  "Set up ggtags."
+   (progn
+     (message "Setting up ggtags...")
+      (require 'ggtags)
+      (add-hook 'c-mode-common-hook
+       (lambda ()
+	(when (derived-mode-p 'c-mode 'c++-mode)
+	 (ggtags-mode 1))))
+	))
+
 ;; setup irony
 (defun setup_irony()
   "Set up irony."
   (progn
-    (message "Seting up irony...")
+    (message "Setting up irony...")
     ;; irony
     (require 'irony)
     ;; If irony server was never installed, install it.
@@ -130,7 +142,7 @@
 (defun setup_rtags ()
   "Set up rtags."
   (progn
-    (message "Seting up Rtags ...")
+    (message "Setting up Rtags ...")
     ;; RTags
     (require 'rtags)
     (unless (rtags-executable-find "rc") (error "Binary rc is not installed!"))
@@ -170,7 +182,8 @@
     (add-hook 'c++-mode-hook #'setup-flycheck-rtags)))
 
 ;;(setup_irony)
-(setup_rtags)
+;;(setup_rtags)
+(setup_ggtags)
 
 ;; (window-numbering-mode)
 ;; (require 'smex)
@@ -258,12 +271,6 @@ Non-interactive arguments are BEGIN END Regexp."
 
 ;; tab-stop-list
 (setq tab-stop-list (number-sequence 4 120 4))
-
-;; ggtags
-;; (add-hook 'c-mode-common-hook
-;;           (lambda ()
-;;             (when (derived-mode-p 'c-mode 'c++-mode)
-;;               (ggtags-mode 1))))
 
 ;; astyle
 (defun astyle-code()
