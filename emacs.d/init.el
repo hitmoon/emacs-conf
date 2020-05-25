@@ -6,11 +6,11 @@
 (global-linum-mode t)
 ;(set-face-background 'linum "light grey")
 
-(setq initial-frame-alist '((top . 30) (left . 30)
- 			    (width . 91) (height . 30)))
+(setq initial-frame-alist '((top . 100) (left . 300)
+			    (width . 125) (height . 40)))
 
-(setq default-frame-alist '((top . 30) (left . 30)
- 			    (width . 91) (height . 30)))
+(setq default-frame-alist '((top . 100) (left . 300)
+			    (width . 125) (height . 40)))
 
 (add-to-list 'default-frame-alist '(font . "DejaVu Sans Mono-11"))
 
