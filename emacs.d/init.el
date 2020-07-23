@@ -28,9 +28,29 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
-(setenv "PS1" "[\\W] \\$ ")
-(setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
-(setq exec-path (cons "/usr/local/bin" exec-path))
+(cond ((string-equal system-type "windows-nt")
+       (progn
+         (message "Starting on windows")
+         (setenv "PATH" (concat "D:/work/emacs-26.3-x86_64-no-deps/bin;" (getenv "PATH")))
+         (setq exec-path (cons "D:/work/emacs-26.3-x86_64-no-deps/bin" exec-path))
+         )
+       ;; Windows performance tweaks
+       ;;
+       (when (boundp 'w32-pipe-read-delay)
+         (setq w32-pipe-read-delay 0))
+       ;; Set the buffer size to 64K on Windows (from the original 4K)
+       (when (boundp 'w32-pipe-buffer-size)
+         (setq irony-server-w32-pipe-buffer-size (* 64 1024)))
+       )
+      ((string-equal system-type "gnu/linux")
+       (progn
+         (message "Starting on GNU/Linux")
+         (setenv "PS1" "[\\W] \\$ ")
+         (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
+         (setq exec-path (cons "/usr/local/bin" exec-path))
+         )
+       )
+      )
 
 (setq select-enable-primary t)
 (setq select-enable-clipboard t)
